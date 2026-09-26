@@ -9,7 +9,8 @@ import {
   onAuthStateChanged,
   updateProfile,
   googleProvider,
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect
 } from '../firebase';
 
 const AuthContext = createContext();
@@ -59,10 +60,18 @@ export function AuthProvider({ children }) {
     return userCredential.user;
   };
 
-  // 3. Google Sign In / Sign Up (Google automatically verifies email)
+  // 3. Google Sign In / Sign Up (Popup with Redirect Fallback)
   const loginWithGoogle = async () => {
-    const result = await signInWithPopup(auth, googleProvider);
-    return result.user;
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      return result.user;
+    } catch (err) {
+      if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+        await signInWithRedirect(auth, googleProvider);
+        return null;
+      }
+      throw err;
+    }
   };
 
   // 4. Resend Verification Email

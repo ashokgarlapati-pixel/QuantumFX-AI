@@ -130,15 +130,23 @@ export default function Register({ onSwitchToLogin }) {
       await loginWithGoogle();
     } catch (err) {
       setIsLoading(false);
-      console.error("Google Auth Error:", err.code, err.message);
+      console.error("Google Auth Error Code:", err.code, "Message:", err.message);
       if (err.code === 'auth/popup-closed-by-user') {
         return;
       }
-      if (err.code === 'auth/configuration-not-found' || err.code === 'auth/operation-not-allowed') {
-        setError('Google Sign-In is not enabled in your Firebase Console. Please go to console.firebase.google.com → Authentication → Sign-in method → Add Google → Enable → Save.');
+      if (
+        err.code === 'auth/configuration-not-found' || 
+        err.code === 'auth/operation-not-allowed' || 
+        err.code === 'auth/admin-restricted-operation'
+      ) {
+        setError('Firebase Setup Required: Google Provider is not toggled ON in your Firebase Console yet. Go to console.firebase.google.com → Select "quantumfx-ai" → Authentication → Sign-in method → Click "Add new provider" → Select "Google" → Choose Support Email → Click Save.');
         return;
       }
-      setError(err.message || 'Google Sign-Up failed. Please try again.');
+      if (err.code === 'auth/unauthorized-domain') {
+        setError('Domain Authorization Required: Go to console.firebase.google.com → Authentication → Settings → Authorized Domains → Add "localhost".');
+        return;
+      }
+      setError(err.message || 'Google Sign-Up failed. Please check your network connection or try again.');
     }
   };
 

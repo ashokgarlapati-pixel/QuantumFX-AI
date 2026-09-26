@@ -9,7 +9,8 @@ import {
   onAuthStateChanged,
   updateProfile,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect
 } from "firebase/auth";
 
 // Live Firebase Configuration for quantumfx-ai project
@@ -26,7 +27,11 @@ const firebaseConfig = {
 // Initialize Firebase App & Auth Service
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 export {
   createUserWithEmailAndPassword,
@@ -36,5 +41,6 @@ export {
   sendPasswordResetEmail,
   onAuthStateChanged,
   updateProfile,
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect
 };
